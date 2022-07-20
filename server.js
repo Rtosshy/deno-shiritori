@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.138.0/http/server.ts";
 
 import { serveDir } from "https://deno.land/std@0.138.0/http/file_server.ts";
 
+import * as fn from "./functions.js";
 
 let previousWord = "しりとり";
 const previousWords = ["しりとり"];
@@ -25,22 +26,18 @@ serve(async (req) => {
     const requestJson = await req.json();
 
     const nextWord = requestJson.nextWord;
-    if (
-      nextWord.length > 0 &&
-      previousWord.charAt(previousWord.length - 1) !== nextWord.charAt(0)
-    ) {
 
+    if (fn.isHiragana(nextWord)) {
+      return new Response("ひらがなを使ってください。", { status: 400 });
+    }
+    if (fn.isContinuing(previousWord, nextWord)) {
       return new Response("前の単語に続いていません。", { status: 400 });
-
     }
-    for (let i = 0; i < previousWords.length - 1; i++) {
-      if(nextWord === previousWords[i]) {
-        return new Response("既に使われた単語です。", { status: 400});
-      }
+    if (fn.isUsed(previousWords, nextWord)) {
+      return new Response("既に使われた単語です。", { status: 400});
     }
-    if (
-      nextWord.charAt(nextWord.length - 1) === "ん"
-    ) {
+    if (fn.isGameOver(nextWord)) {
+      // window.location.href = "./public/result.html";
       return new Response("んがついたので負けです。", { status: 400 });
     }
 
