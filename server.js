@@ -8,8 +8,7 @@ let previousWord = "しりとり";
 const previousWords = ["しりとり"];
 console.log("Listening on http://localhost:8000");
 
-serve(async (req) => {
-  
+serve(async (req) => {  
   const pathname = new URL(req.url).pathname;
   
   console.log(pathname);
@@ -24,9 +23,12 @@ serve(async (req) => {
   if (req.method === "POST" && pathname === "/shiritori") {
     
     const requestJson = await req.json();
-
+    
     const nextWord = requestJson.nextWord;
 
+    if (fn.isEmpty(nextWord)) {
+      return new Response("入力してください。", { status: 400 });
+    }   
     if (fn.isHiragana(nextWord)) {
       return new Response("ひらがなを使ってください。", { status: 400 });
     }
@@ -37,8 +39,7 @@ serve(async (req) => {
       return new Response("既に使われた単語です。", { status: 400});
     }
     if (fn.isGameOver(nextWord)) {
-      // window.location.href = "./public/result.html";
-      return new Response("んがついたので負けです。", { status: 400 });
+      return new Response("んがついたので負けです。", { status: 500 });
     }
 
     previousWords.push(nextWord);

@@ -1,3 +1,7 @@
+export function isEmpty(nextWord) {
+    return !nextWord;
+}
+
 export function isHiragana(nextWord) {
     return !(nextWord.match(/^[ぁ-んー　]*$/));
 }
